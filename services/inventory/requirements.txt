@@ -1,0 +1,14 @@
+# Python package requirements for the Inventory microservice
+# 
+# fastapi - Modern, fast web framework for building APIs with Python 3.7+
+# uvicorn[standard] - Lightning-fast ASGI server with standard extra dependencies
+#   (includes websockets, httptools, and other performance enhancements)
+# sqlalchemy - SQL toolkit and ORM for database operations
+# psycopg2-binary - PostgreSQL adapter for Python
+# python-jose[cryptography] - JWT token validation
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+python-jose[cryptography]
+python-multipart

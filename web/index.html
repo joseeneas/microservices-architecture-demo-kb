@@ -1,0 +1,29 @@
+<!--
+  Main HTML entry point for the web application.
+  
+  This file serves as the root HTML document that:
+  - Sets up the basic HTML5 structure with proper character encoding (UTF-8)
+  - Configures the viewport for responsive design across different devices
+  - Links to a Vite SVG favicon
+  - Provides a root div element where the React application will be mounted
+  - Loads the main TypeScript/React module (main.tsx) using ES modules
+  
+  The application uses Vite as the build tool and React with TypeScript for the frontend.
+  
+  @filepath /Users/eneas/code/microservices-architecture-demo/web/index.html
+  @framework React + TypeScript
+  @build-tool Vite
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>web</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 00-namespace.yaml
+  - 01-gateway-configmap.yaml
+  - 10-redis.yaml
+  - 20-users-db.yaml
+  - 21-orders-db.yaml
+  - 22-inventory-db.yaml
+  - 30-users.yaml
+  - 31-orders.yaml
+  - 32-inventory.yaml
+  - 40-web.yaml
+  - 50-gateway.yaml
+  - 60-ingress.yaml

@@ -1,0 +1,24 @@
+# Orders Service - Python Dependencies
+# This file specifies the Python package requirements for the orders microservice.
+#
+# Core Dependencies:
+# - fastapi: Modern, fast web framework for building APIs with Python 3.7+
+# - uvicorn[standard]: ASGI server implementation with standard extras (websockets, HTTP/2, etc.)
+# - sqlalchemy: SQL toolkit and ORM for database operations
+# - psycopg2-binary: PostgreSQL adapter for Python
+# - httpx: Async HTTP client for inter-service communication
+# - python-jose[cryptography]: JWT token validation
+#
+# Installation:
+# pip install -r requirements.txt
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+httpx
+python-jose[cryptography]
+python-multipart
+numpy
+pandas
+scipy
+statsmodels==0.14.2

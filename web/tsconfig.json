@@ -1,0 +1,32 @@
+/**
+ * TypeScript configuration file for the web project.
+ *
+ * This is a solution-style tsconfig that serves as a base configuration and references
+ * multiple project-specific TypeScript configurations for better organization and build performance.
+ *
+ * @property {Object}  compilerOptions
+ *                     - TypeScript compiler options
+ * @property {boolean} compilerOptions.forceConsistentCasingInFileNames
+ *                     - Ensures consistent casing in import statements
+ * @property {boolean} compilerOptions.strict
+ *                     - Enables all strict type-checking options
+ * @property {Array}   files
+ *                     - Empty array indicating this config doesn't directly compile files
+ * @property {Array}   references
+ *                     - Project references for composite builds
+ * @property {Object}  references[0]
+ *                     - Reference to application-specific TypeScript configuration
+ * @property {Object}  references[1]
+ *                     - Reference to Node.js-specific TypeScript configuration (e.g., for build tools)
+ */
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "strict": true
+  },
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}

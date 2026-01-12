@@ -1,0 +1,20 @@
+# Python dependencies for the Users microservice
+# 
+# fastapi - Modern, fast web framework for building APIs with Python 3.7+
+# uvicorn[standard] - ASGI server implementation with standard extra dependencies (websockets, httptools, uvloop)
+# sqlalchemy - SQL toolkit and ORM for database operations
+# psycopg2-binary - PostgreSQL adapter for Python
+# email-validator - Email validation for Pydantic EmailStr type
+# python-jose[cryptography] - JWT token creation and validation
+# passlib[bcrypt] - Password hashing library
+# python-multipart - Form data parsing for FastAPI
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+email-validator
+python-jose[cryptography]
+passlib==1.7.4
+bcrypt==4.0.1
+python-multipart
+redis

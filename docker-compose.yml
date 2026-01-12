@@ -1,0 +1,196 @@
+# API Gateway Service
+# This service acts as the entry point for client requests and routes them to the appropriate microservices.
+# It depends on the users, orders, inventory services, and web app to be running.
+# The gateway is built from the ./gateway directory and exposes port 8080 on the host, which maps to port 80 in the container.
+# It operates within the 'msnet' network to communicate with other services.
+services:
+  gateway:
+    build: ./gateway
+    depends_on:
+      - users
+      - orders
+      - inventory
+      - web
+    ports:
+      - "8080:80"
+    networks:
+      - msnet
+
+  # Users Database
+  # PostgreSQL database instance dedicated to the users service
+  users-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: users
+      POSTGRES_PASSWORD: users123
+      POSTGRES_DB: usersdb
+    volumes:
+      - users-db-data:/var/lib/postgresql/data
+    networks:
+      - msnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U users -d usersdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Users Service
+  # Builds the users microservice from the ./services/users directory
+  # Connected to the msnet network for inter-service communication
+  # This service manages user-related operations such as registration, authentication, and profile management.
+  # It is built from a local Dockerfile to allow for custom configurations specific to user management.
+  # The users service is a critical component of the microservices architecture, ensuring secure and efficient handling of user data.
+  # Configuration:
+  # - Build Context: ./services/users
+  # - Network: msnet
+  users:
+    build: ./services/users
+    depends_on:
+      users-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://users:users123@users-db:5432/usersdb
+      REDIS_URL: redis://redis:6379/0
+    networks:
+      - msnet
+
+  # Orders Database
+  # PostgreSQL database instance dedicated to the orders service
+  orders-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: orders123
+      POSTGRES_DB: ordersdb
+    volumes:
+      - orders-db-data:/var/lib/postgresql/data
+    networks:
+      - msnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders -d ordersdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Orders Service
+  # 
+  # This service handles order management functionality within the microservices architecture.
+  # 
+  # Configuration:
+  # - Build Context: ./services/orders - Contains the Dockerfile and application code for the orders service
+  # - Network: msnet - Connects to the shared microservices network for inter-service communication
+  # 
+  # The orders service is built from a local Dockerfile rather than using a pre-built image,
+  # allowing for custom configuration and dependencies specific to order processing operations.
+  # It is essential for managing customer orders, processing transactions, and maintaining order history.
+  orders:
+    build: ./services/orders
+    depends_on:
+      orders-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://orders:orders123@orders-db:5432/ordersdb
+      REDIS_URL: redis://redis:6379/1
+    networks:
+      - msnet
+
+  # Inventory Database
+  # PostgreSQL database instance dedicated to the inventory service
+  inventory-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: inventory
+      POSTGRES_PASSWORD: inventory123
+      POSTGRES_DB: inventorydb
+    volumes:
+      - inventory-db-data:/var/lib/postgresql/data
+    networks:
+      - msnet
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U inventory -d inventorydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Inventory Service
+  # 
+  # This service manages product inventory and stock levels in the microservices architecture.
+  # 
+  # Build Configuration:
+  #   - Context: ./services/inventory directory
+  #   - Uses Dockerfile from the inventory service directory
+  # 
+  # Network Configuration:
+  #   - Connected to 'msnet' network for inter-service communication
+  #   - Enables communication with other microservices in the architecture
+  # 
+  # Purpose:
+  #   - Handles inventory tracking and management
+  #   - Maintains stock levels and product availability
+  #   - Provides inventory data to other services
+  inventory:
+    build: ./services/inventory
+    depends_on:
+      inventory-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://inventory:inventory123@inventory-db:5432/inventorydb
+      REDIS_URL: redis://redis:6379/2
+    networks:
+      - msnet
+
+  # Redis Cache
+  # Redis instance for caching and session management
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - msnet
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Web Application
+  # React-based frontend for interacting with microservices
+  web:
+    build: ./web
+    networks:
+      - msnet
+
+# Docker Compose Volume Configuration
+# 
+# Persistent storage volumes for PostgreSQL databases and Redis cache
+volumes:
+  users-db-data:
+  orders-db-data:
+  inventory-db-data:
+  redis-data:
+
+# Docker Compose Network Configuration
+# 
+# This section defines a custom bridge network named 'msnet' for the microservices architecture.
+# 
+# Network Details:
+# - Name: msnet
+# - Driver: bridge (default Docker network driver that allows containers on the same host to communicate)
+# 
+# Purpose:
+# The bridge network enables isolated communication between containers while allowing them to
+# reach each other using container names as hostnames. This is ideal for microservices that
+# need to communicate within the same Docker host environment.
+#
+# Usage:
+# Services can connect to this network by adding 'networks: - msnet' to their service definition.
+networks:
+  msnet:
+    driver: bridge

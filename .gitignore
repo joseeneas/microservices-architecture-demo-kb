@@ -1,0 +1,34 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.venv/
+.env
+.venv*/
+.python-version
+.mypy_cache/
+.pytest_cache/
+.coverage*
+.pyre/
+
+# Editors/IDE
+.vscode/
+.idea/
+*.swp
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Docker
+**/.dockerignore
+**/Dockerfile*
+
+# Node (if added later)
+node_modules/

@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gateway-nginx-config
+  namespace: microdemo
+  labels:
+    app: gateway
+    tier: gateway
+  annotations:
+    kubernetes.io/description: NGINX config used by the gateway Deployment
+
+data:
+  nginx.conf: |
+    worker_processes auto;
+    events { worker_connections 1024; }
+    http {
+      include       /etc/nginx/mime.types;
+      sendfile      on;
+      keepalive_timeout  65;
+
+      upstream users_upstream { server users:8000; }
+      upstream orders_upstream { server orders:8000; }
+      upstream inventory_upstream { server inventory:8000; }
+      upstream web_upstream { server web:80; }
+
+      server {
+        listen 80;
+
+        location = /users { return 301 /users/; }
+        location = /orders { return 301 /orders/; }
+        location = /inventory { return 301 /inventory/; }
+
+        location /users/ { proxy_pass http://users_upstream/; }
+        location /orders/ { proxy_pass http://orders_upstream/; }
+        location /inventory/ { proxy_pass http://inventory_upstream/; }
+
+        location / {
+          proxy_pass http://web_upstream/;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+      }
+    }
