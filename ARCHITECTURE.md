@@ -1,5 +1,16 @@
 # Architecture Diagram
 
+> Kubernetes quick-start ([README](README.md#quick-start-minikube))
+>
+> - minikube start --kubernetes-version=stable
+> - make build apply wait
+> - Access ([details](README.md#access-options)):
+>   - NodePort: http://$(minikube ip):30080/
+>   - Ingress: make ingress-enable && make ingress-apply, then http://microdemo.local/
+>   - Dev port-forward: make dev (opens http://127.0.0.1:8080)
+> - Seed demo data: make seed
+> - Switch images: make deploy-ghcr GHCR_NS=<ns> TAG=<tag>
+
 ## System Overview
 
 ```mermaid
@@ -9,7 +20,7 @@ graph TB
         API[API Client/curl]
     end
 
-    subgraph "Gateway Layer - Port 8080"
+    subgraph "Gateway Layer"
         Gateway[Nginx Gateway<br/>Reverse Proxy<br/>Path-based Routing]
     end
 
@@ -130,66 +141,82 @@ graph LR
     style R4 fill:#9f6,stroke:#333
 ```
 
-## Network Architecture
+## Kubernetes Networking
 
 ```mermaid
-graph TB
-    subgraph "Docker Network: msnet (bridge)"
-        Gateway[gateway:80]
-        Users[users:8000]
-        Orders[orders:8000]
-        Inventory[inventory:8000]
-        Web[web:80]
-        Redis[redis:6379]
-        UsersDB[users-db:5432]
-        OrdersDB[orders-db:5432]
-        InventoryDB[inventory-db:5432]
-    end
+graph TD
+  subgraph microdemo
+    %% Services
+    SUsers[svc users]
+    SOrders[svc orders]
+    SInventory[svc inventory]
+    SWeb[svc web]
+    %% Headless services for StatefulSets
+    SUsersDB[svc users-db]
+    SOrdersDB[svc orders-db]
+    SInventoryDB[svc inventory-db]
+    SRedis[svc redis]
+    %% Workloads
+    PUsers[deploy users]
+    POrders[deploy orders]
+    PInventory[deploy inventory]
+    PWeb[deploy web]
+    PGateway[deploy gateway]
+    PUsersDB[sts users-db]
+    POrdersDB[sts orders-db]
+    PInventoryDB[sts inventory-db]
+    PRedis[sts redis]
+  end
 
-    Host[Host Machine<br/>localhost:8080] -->|Port Mapping| Gateway
+  Client[client]
+  NodePort[gateway NodePort]
+  Ingress[Ingress microdemo.local]
 
-    Gateway -.->|DNS: users:8000| Users
-    Gateway -.->|DNS: orders:8000| Orders
-    Gateway -.->|DNS: inventory:8000| Inventory
-    Gateway -.->|DNS: web:80| Web
+  Client --> Ingress
+  Client --> NodePort
+  Ingress --> PGateway
+  NodePort --> PGateway
 
-    Users -.->|DNS: users-db:5432| UsersDB
-    Orders -.->|DNS: orders-db:5432| OrdersDB
-    Inventory -.->|DNS: inventory-db:5432| InventoryDB
+  PGateway --> PUsers
+  PGateway --> POrders
+  PGateway --> PInventory
+  PGateway --> PWeb
 
-    Users -.->|DNS: redis:6379| Redis
-    Orders -.->|DNS: redis:6379| Redis
-    Inventory -.->|DNS: redis:6379| Redis
+  PUsers --> SUsersDB
+  POrders --> SOrdersDB
+  PInventory --> SInventoryDB
 
-    Orders -.->|DNS: users:8000| Users
-    Orders -.->|DNS: inventory:8000| Inventory
-
-    style Host fill:#f96,stroke:#333,stroke-width:4px
+  PUsers -.-> SRedis
+  POrders -.-> SRedis
+  PInventory -.-> SRedis
 ```
+
+Notes
+- Internal DNS: services resolve as users.microdemo.svc.cluster.local, etc. In nginx.conf we refer to short names (users, orders, inventory, web) within the namespace.
+- Databases and Redis run as StatefulSets behind headless Services for stable network IDs and persistent volumes.
+- External access: either NodePort 30080 or Ingress host microdemo.local (via hosts entry or minikube tunnel).
 
 ## Component Details
 
 ### Services
 
 | Service | Port | Database | Redis DB | Key Features |
-|---------|------|----------|----------|--------------|
-| **Gateway** | 80 | - | - | Nginx reverse proxy, path routing |
-| **Users** | 8000 | usersdb | 0 | JWT auth, role-based access |
-| **Orders** | 8000 | ordersdb | 1 | Event tracking, webhooks, validation |
-| **Inventory** | 8000 | inventorydb | 2 | Stock management, auto-deduction |
-| **Web** | 80 | - | - | React SPA, lazy loading |
-| **Redis** | 6379 | - | 0,1,2 | Caching layer |
+|---|---:|---|---|---|
+| Gateway | 80 | - | - | Nginx reverse proxy, path routing |
+| Users | 8000 | usersdb | 0 | JWT auth, role-based access |
+| Orders | 8000 | ordersdb | 1 | Event tracking, webhooks, validation |
+| Inventory | 8000 | inventorydb | 2 | Stock management, auto-deduction |
+| Web | 80 | - | - | React SPA, lazy loading |
+| Redis | 6379 | - | 0,1,2 | Caching layer |
 
 ### Databases
 
 | Database | User | Port | Health Check |
-|----------|------|------|--------------|
-| **users-db** | users | 5432 | pg_isready -U users -d usersdb |
-| **orders-db** | orders | 5432 | pg_isready -U orders -d ordersdb |
-| **inventory-db** | inventory | 5432 | pg_isready -U inventory -d inventorydb |
-
+|---|---|---:|---|
+| users-db | users | 5432 | pg_isready -U users -d usersdb |
+| orders-db | orders | 5432 | pg_isready -U orders -d ordersdb |
+| inventory-db | inventory | 5432 | pg_isready -U inventory -d inventorydb |
 ### Data Models
-
 ```mermaid
 erDiagram
     USERS ||--o{ ORDERS : places
@@ -279,63 +306,71 @@ graph TB
     style Admin fill:#99f,stroke:#333,stroke-width:2px
 ```
 
-## Deployment View
+## Deployment View (Kubernetes)
 
 ```mermaid
-graph TB
-    subgraph "Container Orchestration"
-        DC[Docker Compose]
+graph TD
+  subgraph kubernetes
+    subgraph workloads
+      DUsers[deploy users]
+      DOrders[deploy orders]
+      DInventory[deploy inventory]
+      DWeb[deploy web]
+      DGateway[deploy gateway]
+      SSUsersDB[sts users-db]
+      SSOrdersDB[sts orders-db]
+      SSInventoryDB[sts inventory-db]
+      SSRedis[sts redis]
     end
-
-    subgraph "Containers"
-        GW[gateway<br/>nginx:1.27-alpine]
-        U[users<br/>python:3.11-slim]
-        O[orders<br/>python:3.11-slim]
-        I[inventory<br/>python:3.11-slim]
-        W[web<br/>nginx:1.27-alpine]
-        R[redis<br/>redis:7-alpine]
-        UDB[users-db<br/>postgres:15-alpine]
-        ODB[orders-db<br/>postgres:15-alpine]
-        IDB[inventory-db<br/>postgres:15-alpine]
+    subgraph services
+      SUsers[svc users]
+      SOrders[svc orders]
+      SInventory[svc inventory]
+      SWeb[svc web]
+      SGateway[svc gateway]
+      SUsersDB[svc users-db]
+      SOrdersDB[svc orders-db]
+      SInventoryDB[svc inventory-db]
+      SRedis[svc redis]
     end
+    CM[configmap gateway-nginx-config]
+    ING[ingress gateway-ingress]
+  end
 
-    subgraph "Volumes"
-        UV[users-db-data]
-        OV[orders-db-data]
-        IV[inventory-db-data]
-        RV[redis-data]
-    end
-
-    DC -->|manages| GW
-    DC -->|manages| U
-    DC -->|manages| O
-    DC -->|manages| I
-    DC -->|manages| W
-    DC -->|manages| R
-    DC -->|manages| UDB
-    DC -->|manages| ODB
-    DC -->|manages| IDB
-
-    UDB -.->|persists to| UV
-    ODB -.->|persists to| OV
-    IDB -.->|persists to| IV
-    R -.->|persists to| RV
-
-    style DC fill:#f96,stroke:#333,stroke-width:4px
+  DGateway --> CM
+  ING --> SGateway
+  SGateway --> DGateway
+  DGateway --> SUsers
+  DGateway --> SOrders
+  DGateway --> SInventory
+  DGateway --> DWeb
+  DUsers --> SUsersDB
+  DOrders --> SOrdersDB
+  DInventory --> SInventoryDB
+  DUsers -.-> SRedis
+  DOrders -.-> SRedis
+  DInventory -.-> SRedis
 ```
+
+Operational notes
+- Liveness/Readiness: all app Deployments expose /healthz for probes.
+- Persistence: PostgreSQL and Redis use PersistentVolumeClaims via StatefulSets.
+- Config: nginx.conf mounted from a ConfigMap; app env (DATABASE_URL, REDIS_URL, JWT_SECRET_KEY) set in Deployment env.
+- Build/Images: for dev, images are built into Minikube; for sharing, CI publishes GHCR images. Use overlays to switch.
 
 ## Key Design Patterns
 
 1. **API Gateway Pattern**: Single entry point (Nginx) for all client requests
 2. **Database per Service**: Each microservice has its own database for independence
-3. **Service Discovery**: Services communicate via Docker network DNS
+3. **Service Discovery**: Kubernetes DNS (svc-name.namespace.svc) instead of Docker DNS
 4. **Event Sourcing**: Order events tracked in separate table for audit trail
 5. **Cache-Aside Pattern**: Check cache first, query DB on miss, update cache
-6. **Circuit Breaker**: Graceful degradation when services are unavailable
+6. **Resilience with Probes**: Readiness/Liveness probes with /healthz
 7. **Webhook Pattern**: Async notifications to external systems
 8. **JWT Token Authentication**: Stateless authentication across services
 9. **Role-Based Access Control (RBAC)**: User vs Admin authorization
 10. **Health Check Pattern**: All services expose health endpoints
+11. **Overlays for Images**: Kustomize overlays to switch between local and GHCR images
 
 ## Performance Characteristics
 
