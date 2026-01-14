@@ -43,7 +43,8 @@ echo "Admin token obtained: ${ADMIN_TOKEN:0:20}..."
 echo "Granting admin role..."
 POD=$(kubectl -n "$NAMESPACE" get pod -l app=users-db -o jsonpath='{.items[0].metadata.name}')
 kubectl -n "$NAMESPACE" exec "$POD" -- psql -U users -d usersdb -c "UPDATE users SET role='admin' WHERE email='admin@test.com';" 2>/dev/null || true
-
+echo "Granting eneas role..."
+kubectl -n "$NAMESPACE" exec "$POD" -- psql -U users -d usersdb -c "UPDATE users SET role='admin' WHERE email='eneas@test.com';" 2>/dev/null || true
 # Add inventory item
 echo "Adding inventory item..."
 curl -sS -X POST "$BASE/inventory/" \
