@@ -19,7 +19,7 @@ build:
 
 apply:
 	kubectl apply -f $(K8S_DIR)/00-namespace.yaml
-	kubectl apply -f $(K8S_DIR) -n $(NAMESPACE)
+	@find $(K8S_DIR) -maxdepth 1 -type f -name "*.yaml" ! -name "kustomization.yaml" | xargs -I {} kubectl apply -f {} -n $(NAMESPACE)
 
 # Kustomize-based deploys
 .PHONY: deploy-local deploy-ghcr
@@ -50,24 +50,7 @@ ingress-apply:
 
 # Seed admin, one inventory item, a normal user, and an example order
 seed:
-	@bash -lc 'set -e; \
-	kubectl -n $(NAMESPACE) port-forward svc/gateway 8080:80 >/tmp/gw-pf.log 2>&1 & echo $$! > /tmp/gw-pf.pid; \
-	sleep 2; \
-	BASE=http://127.0.0.1:8080; \
-	ADMIN_TOKEN=$$(curl -sS $$BASE/users/login -H "Content-Type: application/json" -d ''\''{"email":"admin@test.com","password":"password123"}''\'' | python3 -c ''\''import sys,json; d=sys.stdin.read(); print((json.loads(d).get("access_token","")) if d else "")''\''); \
-	if [ -z "$$ADMIN_TOKEN" ]; then \
-		curl -sS -X POST $$BASE/users/register -H "Content-Type: application/json" -d ''\''{"name":"Admin","email":"admin@test.com","password":"password123"}''\'' >/dev/null || true; \
-		ADMIN_TOKEN=$$(curl -sS $$BASE/users/login -H "Content-Type: application/json" -d ''\''{"email":"admin@test.com","password":"password123"}''\'' | python3 -c ''\''import sys,json;print(json.load(sys.stdin).get("access_token",""))''\''); \
-	fi; \
-	POD=$$(kubectl -n $(NAMESPACE) get pod -l app=users-db -o jsonpath=''\''{.items[0].metadata.name}''\''); \
-	kubectl -n $(NAMESPACE) exec $$POD -- psql -U users -d usersdb -c "UPDATE users SET role=''\''admin''\'' WHERE email=''\''admin@test.com''\'';" >/dev/null; \
-	curl -sS -X POST $$BASE/inventory/ -H "Authorization: Bearer $$ADMIN_TOKEN" -H "Content-Type: application/json" -d ''\''{"sku":"SKU-001","qty":200}''\'' >/dev/null || true; \
-	curl -sS -X POST $$BASE/users/register -H "Content-Type: application/json" -d ''\''{"name":"Bob","email":"bob@example.com","password":"password123"}''\'' >/dev/null || true; \
-	USER_TOKEN=$$(curl -sS $$BASE/users/login -H "Content-Type: application/json" -d ''\''{"email":"bob@example.com","password":"password123"}''\'' | python3 -c ''\''import sys,json;print(json.load(sys.stdin).get("access_token",""))''\''); \
-	BOB_ID=$$(curl -sS $$BASE/users/me -H "Authorization: Bearer $$USER_TOKEN" | python3 -c ''\''import sys,json;print(json.load(sys.stdin)["id"])''\''); \
-	curl -sS -X POST $$BASE/orders/ -H "Authorization: Bearer $$USER_TOKEN" -H "Content-Type: application/json" -d ''\''{"id":"ORD-001","user_id":'$$BOB_ID',"total":10.0,"status":"pending","items":[{"sku":"SKU-001","quantity":1,"price":10.0}]}''\'' >/dev/null || true; \
-	echo Seed\ complete; \
-	kill $$(cat /tmp/gw-pf.pid) >/dev/null 2>&1 || true; rm -f /tmp/gw-pf.pid /tmp/gw-pf.log' 
+	@bash scripts/seed.sh $(NAMESPACE) 
 
 # Remove all resources
 down:
