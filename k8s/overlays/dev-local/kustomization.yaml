@@ -22,5 +22,3 @@ images:
     newTag: latest
   - name: microdemo-kb-web
     newTag: latest
-  - name: microdemo-kb-gateway
-    newTag: latest

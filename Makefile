@@ -7,7 +7,7 @@ GHCR_NS ?= your-gh-namespace
 TAG ?= latest
 
 # Services to build as images inside minikube
-IMAGES := users orders inventory web gateway
+IMAGES := users orders inventory web
 
 start:
 	minikube start
@@ -50,7 +50,7 @@ ingress-apply:
 
 # Seed admin, one inventory item, a normal user, and an example order
 seed:
-	@bash scripts/seed.sh $(NAMESPACE) 
+	@chmod +x scripts/seed.sh && scripts/seed.sh $(NAMESPACE)
 
 # Remove all resources
 down:

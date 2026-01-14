@@ -26,6 +26,3 @@ images:
   - name: microdemo-kb-web
     newName: ghcr.io/GHCR_NS_PLACEHOLDER/microservices-architecture-demo-kb-web
     newTag: TAG_PLACEHOLDER
-  - name: microdemo-kb-gateway
-    newName: ghcr.io/GHCR_NS_PLACEHOLDER/microservices-architecture-demo-kb-gateway
-    newTag: TAG_PLACEHOLDER
