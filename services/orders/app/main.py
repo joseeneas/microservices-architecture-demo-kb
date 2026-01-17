@@ -699,15 +699,7 @@ def delete_order(
             detail="Not authorized to delete this order"
         )
     
-    # Log deletion event before deleting
-    log_order_event(
-        db=db,
-        order_id=order_id,
-        event_type="deleted",
-        description="Order deleted",
-        user_id=current_user.id
-    )
-    
+    # Perform deletion
     success = crud.delete_order(db, order_id=order_id)
     if not success:
         raise HTTPException(status_code=404, detail="Order not found")

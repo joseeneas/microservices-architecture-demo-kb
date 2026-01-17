@@ -5,6 +5,7 @@ This module contains all database operations for order management.
 """
 from typing import List, Optional, Tuple
 from sqlalchemy.orm import Session
+from sqlalchemy import delete as sqla_delete
 import httpx
 import logging
 from . import models, schemas
@@ -224,6 +225,9 @@ def delete_order(db: Session, order_id: str) -> bool:
     """
     Delete an order from the database.
     
+    This also deletes any associated order_events rows to satisfy the
+    foreign key constraint.
+    
     Args:
         db: Database session
         order_id: ID of the order to delete
@@ -231,10 +235,22 @@ def delete_order(db: Session, order_id: str) -> bool:
     Returns:
         True if order was deleted, False if not found
     """
-    db_order = get_order(db, order_id)
-    if db_order is None:
+    try:
+        db_order = get_order(db, order_id)
+        if db_order is None:
+            return False
+        
+        # Delete dependent timeline events first to avoid FK constraint errors
+        db.execute(
+            sqla_delete(models.OrderEvent).where(models.OrderEvent.order_id == order_id)
+        )
+        # Flush to ensure child rows are removed before deleting parent
+        db.flush()
+
+        db.delete(db_order)
+        db.commit()
+        return True
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Failed to delete order {order_id}: {e}")
         return False
-    
-    db.delete(db_order)
-    db.commit()
-    return True
