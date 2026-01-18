@@ -14,7 +14,10 @@ start:
 
 build:
 	@for s in $(IMAGES); do \
-		minikube image build -t microdemo-kb-$$s:latest services/$$s || exit 1; \
+		ctx=services/$$s; \
+		if [ "$$s" = "web" ]; then ctx=web; fi; \
+		echo "Building image microdemo-kb-$$s:latest from $$ctx"; \
+		minikube image build -t microdemo-kb-$$s:latest $$ctx || exit 1; \
 	done
 
 apply:
@@ -65,13 +68,18 @@ logs:
 	kubectl -n $(NAMESPACE) logs deploy/users --tail=200
 
 # Developer convenience: start port-forward and open the app
-.PHONY: dev dev-stop
+.PHONY: dev dev-stop rollout-web
+
 dev:
 	@bash -lc 'set -e; \
 	kubectl -n $(NAMESPACE) port-forward svc/gateway 8080:80 >/tmp/gw-pf.log 2>&1 & echo $$! > /tmp/gw-pf.pid; \
 	sleep 1; \
 	echo "Gateway forwarded on http://127.0.0.1:8080 (PID $$(cat /tmp/gw-pf.pid))"; \
 	if command -v open >/dev/null 2>&1; then open http://127.0.0.1:8080; fi'
+
+# Roll web deployment to pick up freshly built :latest image
+rollout-web:
+	kubectl -n $(NAMESPACE) rollout restart deploy/web
 
 dev-stop:
 	-@kill $$(cat /tmp/gw-pf.pid) >/dev/null 2>&1 || true; rm -f /tmp/gw-pf.pid /tmp/gw-pf.log; echo "Port-forward stopped"

@@ -52,10 +52,12 @@ export function SettingsPage() {
           </label>
           <div className="flex gap-4">
             <button
+              type="button"
+              aria-pressed={theme === 'light'}
               onClick={() => setTheme('light')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                 theme === 'light'
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -65,10 +67,12 @@ export function SettingsPage() {
               </div>
             </button>
             <button
+              type="button"
+              aria-pressed={theme === 'dark'}
               onClick={() => setTheme('dark')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                 theme === 'dark'
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -87,10 +91,12 @@ export function SettingsPage() {
           </label>
           <div className="flex gap-4">
             <button
+              type="button"
+              aria-pressed={chartPalette === 'brand'}
               onClick={() => setChartPalette('brand')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                 chartPalette === 'brand'
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -100,10 +106,12 @@ export function SettingsPage() {
               </div>
             </button>
             <button
+              type="button"
+              aria-pressed={chartPalette === 'accessible'}
               onClick={() => setChartPalette('accessible')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                 chartPalette === 'accessible'
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -113,10 +121,12 @@ export function SettingsPage() {
               </div>
             </button>
             <button
+              type="button"
+              aria-pressed={chartPalette === 'auto'}
               onClick={() => setChartPalette('auto')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
                 chartPalette === 'auto'
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60'
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
@@ -135,9 +145,11 @@ export function SettingsPage() {
           </label>
           <div className="flex gap-4">
             <button
+              type="button"
+              aria-pressed={forecastMethod === 'auto'}
               onClick={() => setForecastMethod('auto')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                forecastMethod === 'auto' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                forecastMethod === 'auto' ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60' : 'border-gray-300 hover:border-gray-400'
               }`}
             >
               <div className="text-left">
@@ -146,9 +158,11 @@ export function SettingsPage() {
               </div>
             </button>
             <button
+              type="button"
+              aria-pressed={forecastMethod === 'linear'}
               onClick={() => setForecastMethod('linear')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                forecastMethod === 'linear' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                forecastMethod === 'linear' ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60' : 'border-gray-300 hover:border-gray-400'
               }`}
             >
               <div className="text-left">
@@ -157,9 +171,11 @@ export function SettingsPage() {
               </div>
             </button>
             <button
+              type="button"
+              aria-pressed={forecastMethod === 'exp'}
               onClick={() => setForecastMethod('exp')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                forecastMethod === 'exp' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                forecastMethod === 'exp' ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60' : 'border-gray-300 hover:border-gray-400'
               }`}
             >
               <div className="text-left">
@@ -168,9 +184,11 @@ export function SettingsPage() {
               </div>
             </button>
             <button
+              type="button"
+              aria-pressed={forecastMethod === 'hw'}
               onClick={() => setForecastMethod('hw')}
-              className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                forecastMethod === 'hw' ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+              className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                forecastMethod === 'hw' ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60' : 'border-gray-300 hover:border-gray-400'
               }`}
             >
               <div className="text-left">
@@ -189,9 +207,11 @@ export function SettingsPage() {
           <div className="flex gap-4">
             {(['auto','weekday','none'] as const).map(opt => (
               <button key={opt}
+                type="button"
+                aria-pressed={forecastSeasonality === opt}
                 onClick={() => setForecastSeasonality(opt)}
-                className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
-                  forecastSeasonality === opt ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+                className={`relative flex-1 px-4 py-3 rounded-lg border-2 transition-all ${
+                  forecastSeasonality === opt ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60' : 'border-gray-300 hover:border-gray-400'
                 }`}
               >
                 <div className="text-left">
@@ -211,10 +231,12 @@ export function SettingsPage() {
           <div className="flex gap-2">
             {[80,95,99].map((cl) => (
               <button key={cl}
+                type="button"
+                aria-pressed={forecastConfidence===cl}
                 onClick={() => setForecastConfidence(cl as 80|95|99)}
-                className={`px-3 py-2 rounded-lg border-2 text-sm ${forecastConfidence===cl ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}
+                className={`px-3 py-2 rounded-lg border-2 text-sm ${forecastConfidence===cl ? 'border-blue-500 bg-blue-50 ring-2 ring-inset ring-blue-500/60 dark:ring-blue-400/60 font-semibold' : 'border-gray-300 hover:border-gray-400'}`}
               >
-                {cl}%
+                {forecastConfidence===cl ? '✓ ' : ''}{cl}%
               </button>
             ))}
           </div>
