@@ -48,7 +48,6 @@ def health():
     """
     return {"status": "healthy"}
 
-
 @app.post("/register", response_model=schemas.Token, status_code=status.HTTP_201_CREATED)
 def register(user: schemas.UserRegister, db: Session = Depends(get_db)):
     """
@@ -90,7 +89,6 @@ def register(user: schemas.UserRegister, db: Session = Depends(get_db)):
     )
     return schemas.Token(access_token=access_token)
 
-
 @app.post("/login", response_model=schemas.Token)
 def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
     """
@@ -118,7 +116,6 @@ def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
         data={"sub": str(user.id), "email": user.email, "role": user.role}
     )
     return schemas.Token(access_token=access_token)
-
 
 @app.get("/me", response_model=schemas.User)
 def get_current_user_info(current_user: models.User = Depends(auth.get_current_user)):
@@ -207,7 +204,8 @@ def reset_password(
     """
     Reset a user's password (admin only). Returns a new temporary password once.
     """
-    import secrets, string
+    import secrets
+    import string
     db_user = crud.get_user(db, user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -229,7 +227,7 @@ def get_analytics(
         dict: Analytics data including user counts, role breakdown, recent signups
     """
     total_users = db.query(func.count(models.User.id)).scalar()
-    active_users = db.query(func.count(models.User.id)).filter(models.User.is_active == True).scalar()
+    active_users = db.query(func.count(models.User.id)).filter(models.User.is_active).scalar()
     
     # Role breakdown
     role_counts = db.query(models.User.role, func.count(models.User.id)).group_by(models.User.role).all()

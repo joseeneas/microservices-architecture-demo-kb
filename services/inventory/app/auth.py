@@ -4,7 +4,6 @@ Authentication and authorization utilities for Inventory service.
 Validates JWT tokens issued by the Users service.
 """
 import logging
-from typing import Optional
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials

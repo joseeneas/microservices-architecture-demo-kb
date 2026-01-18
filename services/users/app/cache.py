@@ -38,7 +38,6 @@ def get_cache(key: str) -> Optional[Any]:
         print(f"Cache get error: {e}")
         return None
 
-
 def set_cache(key: str, value: Any, ttl: int = 300) -> bool:
     """
     Set a value in Redis cache with TTL.
@@ -58,7 +57,6 @@ def set_cache(key: str, value: Any, ttl: int = 300) -> bool:
         print(f"Cache set error: {e}")
         return False
 
-
 def delete_cache(key: str) -> bool:
     """
     Delete a key from Redis cache.
@@ -75,7 +73,6 @@ def delete_cache(key: str) -> bool:
     except Exception as e:
         print(f"Cache delete error: {e}")
         return False
-
 
 def delete_pattern(pattern: str) -> bool:
     """
@@ -95,7 +92,6 @@ def delete_pattern(pattern: str) -> bool:
     except Exception as e:
         print(f"Cache delete pattern error: {e}")
         return False
-
 
 def cache_result(key_prefix: str, ttl: int = 300):
     """
@@ -129,3 +125,4 @@ def cache_result(key_prefix: str, ttl: int = 300):
             return result
         return wrapper
     return decorator
+   

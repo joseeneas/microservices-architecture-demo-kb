@@ -109,7 +109,6 @@ async def rollback_inventory_deductions(items: List, processed_skus: List[str], 
             else:
                 logger.error(f"Rollback failed for SKU '{sku}': {error_msg}")
 
-
 async def validate_order_data(order: schemas.OrderCreate, token: Optional[str] = None) -> Tuple[bool, Optional[str]]:
     """
     Validate order data by checking user and inventory items exist.

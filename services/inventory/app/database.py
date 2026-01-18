@@ -10,16 +10,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Get database URL from environment variable
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://inventory:inventory123@localhost:5432/inventorydb")
-
 # Create SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
-
 # Create SessionLocal class for database sessions
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 # Base class for declarative models
-Base = declarative_base()
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://inventory:inventory123@localhost:5432/inventorydb")
+engine       = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base         = declarative_base()
 
 def get_db():
     """

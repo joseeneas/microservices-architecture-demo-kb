@@ -4,7 +4,6 @@ Authentication and authorization utilities for Orders service.
 Validates JWT tokens issued by the Users service.
 """
 import logging
-from typing import Optional
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -19,13 +18,11 @@ ALGORITHM = "HS256"
 # Security scheme for JWT bearer tokens
 security = HTTPBearer()
 
-
 class TokenData(BaseModel):
     """Data extracted from JWT token."""
     user_id: int
     email: str
     role: str
-
 
 class CurrentUser(BaseModel):
     """Current authenticated user information."""
@@ -33,7 +30,6 @@ class CurrentUser(BaseModel):
     email: str
     role: str
     token: str
-
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security)

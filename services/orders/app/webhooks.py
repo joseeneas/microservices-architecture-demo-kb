@@ -4,9 +4,8 @@ Webhook system for sending order event notifications.
 Allows external systems to subscribe to order events (created, status_changed, etc.)
 """
 import os
-import json
 import httpx
-from typing import Dict, Any, List
+from typing import Dict, Any
 import asyncio
 
 
