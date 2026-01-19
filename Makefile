@@ -1,4 +1,4 @@
-.PHONY: start build apply wait ingress-enable ingress-apply url port-forward seed down reset logs
+.PHONY: start build buildx load-images apply wait ingress-enable ingress-apply url port-forward seed down reset logs
 
 NAMESPACE ?= microdemo
 K8S_DIR := k8s
@@ -12,12 +12,50 @@ IMAGES := users orders inventory web
 start:
 	minikube start
 
+# Default: build using minikube's image builder (works across drivers but may show legacy builder warning)
 build:
 	@for s in $(IMAGES); do \
 		ctx=services/$$s; \
 		if [ "$$s" = "web" ]; then ctx=web; fi; \
 		echo "Building image microdemo-kb-$$s:latest from $$ctx"; \
 		minikube image build -t microdemo-kb-$$s:latest $$ctx || exit 1; \
+	done
+
+# Alternative: build with Docker BuildKit/Buildx on the host and load into the daemon
+# Recommended when using the Docker driver on macOS/Linux to avoid the legacy builder warning
+buildx:
+	@docker buildx ls >/dev/null 2>&1 || docker buildx create --use --name microdemo-builder >/dev/null 2>&1 || true
+	@for s in $(IMAGES); do \
+		ctx=services/$$s; \
+		if [ "$$s" = "web" ]; then ctx=web; fi; \
+		echo "Building image microdemo-kb-$$s:latest from $$ctx (buildx)"; \
+		docker buildx build --load -t microdemo-kb-$$s:latest $$ctx || exit 1; \
+	done
+
+# Build with buildx, restart web to pick up :latest, then wait for rollout
+.PHONY: deployx
+deployx: buildx rollout-web wait
+
+# Build only the web image with a unique dev tag and update the deployment to that tag
+.PHONY: deployx-web
+deployx-web:
+	@docker buildx ls >/dev/null 2>&1 || docker buildx create --use --name microdemo-builder >/dev/null 2>&1 || true
+	@TS=$$(date -u +%Y%m%d%H%M%S); \
+	ARCH=$$(minikube ssh 'uname -m' 2>/dev/null | tr -d "\r"); \
+	PLAT=$$(if [ "$$ARCH" = "x86_64" ]; then echo linux/amd64; else echo linux/arm64; fi); \
+	echo "Detected minikube arch: $$ARCH → building for $$PLAT"; \
+	echo "Building web image with tags: latest and dev-$$TS"; \
+	docker buildx build --platform $$PLAT --load -t microdemo-kb-web:latest -t microdemo-kb-web:dev-$$TS web || exit 1; \
+	echo "Loading image into Minikube (if needed)"; \
+	minikube image load microdemo-kb-web:dev-$$TS >/dev/null 2>&1 || true; \
+	echo "Updating deployment to image microdemo-kb-web:dev-$$TS"; \
+	kubectl -n $(NAMESPACE) set image deploy/web web=microdemo-kb-web:dev-$$TS; \
+	kubectl -n $(NAMESPACE) rollout status deploy/web
+
+# If you're not on the Docker driver, you may need to load images into Minikube after buildx
+load-images:
+	@for s in $(IMAGES); do \
+		minikube image load microdemo-kb-$$s:latest || true; \
 	done
 
 apply:

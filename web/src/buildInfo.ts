@@ -1,0 +1,1 @@
+export const BUILD_TIME = import.meta.env.VITE_BUILD_TIME || 'dev';

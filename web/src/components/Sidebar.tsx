@@ -1,8 +1,20 @@
 import { useAuth } from '../context/AuthContext';
+import { BUILD_TIME } from '../buildInfo';
 
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+}
+
+function BuildStamp() {
+  const ts = BUILD_TIME;
+  try {
+    const d = new Date(ts);
+    if (!isNaN(d.getTime())) {
+      return <span title={`Build UTC: ${ts}`}>Built: {d.toLocaleString()}</span>;
+    }
+  } catch {}
+  return <span title="Build time not set">Built: dev</span>;
 }
 
 export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
@@ -56,7 +68,8 @@ export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
         </button>
         <div className="mt-4 text-center text-onBrand/70 text-xs" aria-label="App version">
           v1.0 • Demo<br />
-          (c) 2025 Your Company
+          <BuildStamp />
+          <div>(c) 2025 Your Company</div>
         </div>
       </div>
     </div>

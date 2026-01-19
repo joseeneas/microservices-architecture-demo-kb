@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ordersApi } from '../services/ordersApi';
@@ -13,6 +13,7 @@ export function OrdersPage() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
   const [formData, setFormData] = useState({ 
     id: '', 
     user_id: 0, 
@@ -202,6 +203,18 @@ export function OrdersPage() {
     }
   };
 
+  const counts = useMemo(() => {
+    const c = { all: (orders?.length || 0), pending: 0, completed: 0, cancelled: 0 };
+    (orders || []).forEach((o) => {
+      const s = (o.status || '').toLowerCase();
+      if (s === 'pending' || s === 'completed' || s === 'cancelled') {
+        // @ts-ignore - keyof type literal
+        c[s] += 1;
+      }
+    });
+    return c;
+  }, [orders]);
+
   const columns = [
     { key: 'id', label: 'Order ID', sortable: true, thClassName: 'w-[20%]', tdClassName: 'w-[20%]' },
     { key: 'user_id', label: 'User ID', align: 'right' as const, sortable: true, thClassName: 'w-[12%]', tdClassName: 'w-[12%]' },
@@ -229,7 +242,7 @@ export function OrdersPage() {
     },
     {
       key: 'total',
-      label: 'Total',
+      label: 'TotalX',
       align: 'right' as const,
       thClassName: 'w-[14%]',
       tdClassName: 'w-[14%]',
@@ -238,7 +251,7 @@ export function OrdersPage() {
     {
       key: 'status',
       label: 'Status',
-      hideBelow: 'sm' as const,
+      align: 'center' as const,
       thClassName: 'w-[14%]',
       tdClassName: 'w-[14%]',
       render: (order: Order) => (
@@ -274,7 +287,9 @@ export function OrdersPage() {
   // Optional date filter from query string
   const params = new URLSearchParams(location.search);
   const dateFilter = params.get('date');
-  const filtered = (orders || []).filter(o => !dateFilter || (o.created_at && o.created_at.startsWith(dateFilter)));
+  const filtered = (orders || [])
+    .filter(o => !dateFilter || (o.created_at && o.created_at.startsWith(dateFilter)))
+    .filter(o => statusFilter === 'all' ? true : ((o.status || '').toLowerCase() === statusFilter));
 
   return (
     <div>
@@ -303,6 +318,8 @@ export function OrdersPage() {
               accept=".csv"
               onChange={handleImport}
               className="hidden"
+              title="Import CSV file"
+              aria-label="Import CSV file"
             />
             <button
               onClick={openCreateModal}
@@ -317,6 +334,34 @@ export function OrdersPage() {
             {importResult}
           </div>
         )}
+
+        {/* Status filter row (visible below header on all screen sizes) */}
+        <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="orders-status-filter">
+          {([
+            { id: 'all', label: 'All', count: counts.all },
+            { id: 'pending', label: 'Pending', count: counts.pending },
+            { id: 'completed', label: 'Completed', count: counts.completed },
+            { id: 'cancelled', label: 'Cancelled', count: counts.cancelled },
+          ] as const).map(btn => (
+            <button
+              key={btn.id}
+              onClick={() => setStatusFilter(btn.id)}
+              className={`px-3 py-1.5 text-sm rounded-full border transition ${
+                statusFilter === btn.id
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-onSurface border-gray-300 hover:border-gray-400'
+              }`}
+              aria-pressed={statusFilter === btn.id ? 'true' : 'false'}
+            >
+              {btn.label}
+              <span className={`ml-2 inline-flex items-center justify-center text-xs px-2 py-0.5 rounded-full border ${
+                statusFilter === btn.id ? 'bg-white text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-800 border-gray-300'
+              }`}>
+                {btn.count}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <DataTable
@@ -358,6 +403,8 @@ export function OrdersPage() {
                       value={formData.id}
                       onChange={(e) => setFormData({ ...formData, id: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      placeholder="Enter order ID"
+                      aria-label="Order ID"
                       required
                     />
                   </div>
@@ -369,6 +416,7 @@ export function OrdersPage() {
                     value={formData.user_id}
                     onChange={(e) => setFormData({ ...formData, user_id: parseInt(e.target.value) })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    aria-label="Select user"
                     required
                   >
                     <option value={0}>Select a user...</option>
@@ -396,6 +444,7 @@ export function OrdersPage() {
                             });
                           }}
                           className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+                          aria-label="Select SKU"
                         >
                           <option value="">Select SKU...</option>
                           {inventory?.map((item) => (
@@ -411,6 +460,7 @@ export function OrdersPage() {
                         value={currentItem.quantity}
                         onChange={(e) => setCurrentItem({ ...currentItem, quantity: parseInt(e.target.value) })}
                         placeholder="Qty"
+                        aria-label="Item quantity"
                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                       />
                       <input
@@ -420,6 +470,7 @@ export function OrdersPage() {
                         value={currentItem.price}
                         onChange={(e) => setCurrentItem({ ...currentItem, price: parseFloat(e.target.value) })}
                         placeholder="Price"
+                        aria-label="Item price"
                         className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
                       />
                     </div>
@@ -461,6 +512,7 @@ export function OrdersPage() {
                     step="0.01"
                     value={formData.total}
                     readOnly
+                    aria-label="Order total"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-surface"
                   />
                   <p className="text-xs text-muted mt-1">Auto-calculated from items</p>
@@ -472,6 +524,7 @@ export function OrdersPage() {
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                    aria-label="Order status"
                   >
                     <option value="pending">Pending</option>
                     <option value="completed">Completed</option>
