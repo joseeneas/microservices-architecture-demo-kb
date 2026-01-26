@@ -351,7 +351,7 @@ export function OrdersPage() {
                   ? 'bg-blue-600 text-white border-blue-600'
                   : 'bg-white text-onSurface border-gray-300 hover:border-gray-400'
               }`}
-              aria-pressed={statusFilter === btn.id ? 'true' : 'false'}
+              aria-pressed={statusFilter === btn.id}
             >
               {btn.label}
               <span className={`ml-2 inline-flex items-center justify-center text-xs px-2 py-0.5 rounded-full border ${

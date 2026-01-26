@@ -5,21 +5,17 @@ This module sets up the database connection using SQLAlchemy and provides
 a session factory for database operations.
 """
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
+from   sqlalchemy                 import create_engine
+from   sqlalchemy.ext.declarative import declarative_base
+from   sqlalchemy.orm             import sessionmaker
 # Get database URL from environment variable
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://orders:orders123@localhost:5432/ordersdb")
-
 # Create SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
-
 # Create SessionLocal class for database sessions
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 # Base class for declarative models
-Base = declarative_base()
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://orders:orders123@localhost:5432/ordersdb")
+engine       = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base         = declarative_base()
 
 def get_db():
     """

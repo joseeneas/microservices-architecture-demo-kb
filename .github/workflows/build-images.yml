@@ -1,3 +1,29 @@
+# Workflow: Build and push images
+# Purpose: Automatically builds Docker images for microservices and pushes them to GitHub Container Registry (GHCR)
+# 
+# Triggers:
+#   - Push events to master or main branches
+#   - Manual workflow dispatch
+#
+# Permissions:
+#   - contents: read - Read access to repository contents
+#   - packages: write - Write access to GitHub packages (GHCR)
+#
+# Jobs:
+#   build-and-push:
+#     Runs on: ubuntu-latest
+#     Matrix: Builds images for 4 services (users, orders, inventory, web)
+#     Strategy: Parallel builds for each service
+#     Steps:
+#       1. Checkout - Retrieves repository code
+#       2. Set up QEMU - Enables multi-architecture Docker builds
+#       3. Set up Docker Buildx - Configures advanced Docker build toolkit
+#       4. Log in to GHCR - Authenticates with GitHub Container Registry
+#       5. Compute image tags - Generates image names and tags based on repository and Git SHA
+#       6. Build and push - Builds Docker images for linux/amd64 and linux/arm64 architectures
+#          - Pushes images with 'latest' and commit SHA tags
+#          - Uses GitHub Actions cache for improved build performance
+#          - Builds from 'web' directory for web service, 'services/{name}' for others
 name: Build and push images
 
 on:

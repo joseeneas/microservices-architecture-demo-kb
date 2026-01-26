@@ -163,7 +163,7 @@ export function DashboardPage() {
 
   // Palettes
   const OKABE_ITO = ['#0072B2', '#D55E00', '#009E73', '#E69F00', '#56B4E9', '#F0E442', '#CC79A7', '#000000'];
-  const BRAND = ['#3b82f6', '#22c55e', '#a855f7', '#eab308', '#ef4444', '#14b8a6', '#f97316', '#64748b'];
+  const BRAND     = ['#3b82f6', '#22c55e', '#a855f7', '#eab308', '#ef4444', '#14b8a6', '#f97316', '#64748b'];
 
   const effectivePalette = (() => {
     const pref = preferences.chartPalette || 'accessible';
@@ -174,31 +174,31 @@ export function DashboardPage() {
   })();
 
   const PALETTE = effectivePalette;
-  const COLORS = PALETTE; // alias for pie mapping fallback
+  const COLORS  = PALETTE; // alias for pie mapping fallback
 
   // Status → color mapping (switches with palette where appropriate)
   const STATUS_COLORS: Record<string, string> = preferences.chartPalette === 'brand'
     ? {
-        completed: '#22c55e',
-        delivered: '#22c55e',
-        shipped: '#3b82f6',
+        completed:  '#22c55e',
+        delivered:  '#22c55e',
+        shipped:    '#3b82f6',
         processing: '#0ea5e9',
-        pending: '#eab308',
-        cancelled: '#ef4444',
-        failed: '#ef4444',
+        pending:    '#eab308',
+        cancelled:  '#ef4444',
+        failed:     '#ef4444',
       }
     : {
-        completed: '#009E73',
-        delivered: '#009E73',
-        shipped: '#56B4E9',
+        completed:  '#009E73',
+        delivered:  '#009E73',
+        shipped:    '#56B4E9',
         processing: '#0072B2',
-        pending: '#E69F00',
-        cancelled: '#D55E00',
-        failed: '#D55E00',
+        pending:    '#E69F00',
+        cancelled:  '#D55E00',
+        failed:     '#D55E00',
       };
 
   const ordersSeriesData = ordersSeries?.series ?? [];
-  const usersSeriesData = usersSeries?.series ?? [];
+  const usersSeriesData  = usersSeries?.series ?? [];
 
   const composedData = useMemo(() => {
     const anomalyDates = new Set((forecast?.anomalies ?? []).map(a => a.date));
