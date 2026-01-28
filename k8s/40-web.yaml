@@ -3,6 +3,12 @@ kind: Service
 metadata:
   name: web
   namespace: microdemo
+  labels:
+    app: web
+    tier: frontend
+    app.kubernetes.io/name: web
+    app.kubernetes.io/part-of: microdemo
+    app.kubernetes.io/component: frontend
 spec:
   ports:
     - port: 80
@@ -16,6 +22,12 @@ kind: Deployment
 metadata:
   name: web
   namespace: microdemo
+  labels:
+    app: web
+    tier: frontend
+    app.kubernetes.io/name: web
+    app.kubernetes.io/part-of: microdemo
+    app.kubernetes.io/component: frontend
 spec:
   replicas: 1
   selector:
@@ -25,6 +37,10 @@ spec:
     metadata:
       labels:
         app: web
+        tier: frontend
+        app.kubernetes.io/name: web
+        app.kubernetes.io/part-of: microdemo
+        app.kubernetes.io/component: frontend
     spec:
       containers:
         - name: web

@@ -138,6 +138,27 @@ kubectl -n microdemo logs deploy/inventory --tail=200
 kubectl -n microdemo logs deploy/gateway --tail=200
 ```
 
+### Label-based log tailing (recommended)
+
+These use the `app` label added to all Pods/Deployments.
+
+```sh
+# Tail all orders pods (all containers) with container name prefixes
+kubectl -n microdemo logs -l app=orders --all-containers --prefix -f
+
+# Limit to recent logs
+kubectl -n microdemo logs -l app=orders --since=10m --all-containers --prefix -f
+
+# Specific container only (if Pod has multiple containers)
+kubectl -n microdemo logs -l app=orders -c orders --prefix -f
+
+# One pod (first matching)
+kubectl -n microdemo logs $(kubectl -n microdemo get pod -l app=orders -o name | head -n1) --prefix -f
+
+# Previous crash logs
+kubectl -n microdemo logs -l app=orders --all-containers --previous --prefix
+```
+
 ## License
 
 © J. Eneas, 2025 - Demo/Educational purposes

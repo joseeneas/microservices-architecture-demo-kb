@@ -3,6 +3,12 @@ kind: Deployment
 metadata:
   name: gateway
   namespace: microdemo
+  labels:
+    app: gateway
+    tier: gateway
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/part-of: microdemo
+    app.kubernetes.io/component: gateway
 spec:
   replicas: 1
   selector:
@@ -12,6 +18,10 @@ spec:
     metadata:
       labels:
         app: gateway
+        tier: gateway
+        app.kubernetes.io/name: gateway
+        app.kubernetes.io/part-of: microdemo
+        app.kubernetes.io/component: gateway
     spec:
       containers:
         - name: gateway
@@ -53,6 +63,12 @@ kind: Service
 metadata:
   name: gateway
   namespace: microdemo
+  labels:
+    app: gateway
+    tier: gateway
+    app.kubernetes.io/name: gateway
+    app.kubernetes.io/part-of: microdemo
+    app.kubernetes.io/component: gateway
 spec:
   type: NodePort
   selector:

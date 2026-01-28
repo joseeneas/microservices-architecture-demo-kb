@@ -3,6 +3,12 @@ kind: Service
 metadata:
   name: orders
   namespace: microdemo
+  labels:
+    app: orders
+    tier: backend
+    app.kubernetes.io/name: orders
+    app.kubernetes.io/part-of: microdemo
+    app.kubernetes.io/component: backend
 spec:
   ports:
     - port: 8000
@@ -16,6 +22,12 @@ kind: Deployment
 metadata:
   name: orders
   namespace: microdemo
+  labels:
+    app: orders
+    tier: backend
+    app.kubernetes.io/name: orders
+    app.kubernetes.io/part-of: microdemo
+    app.kubernetes.io/component: backend
 spec:
   replicas: 1
   selector:
@@ -25,6 +37,10 @@ spec:
     metadata:
       labels:
         app: orders
+        tier: backend
+        app.kubernetes.io/name: orders
+        app.kubernetes.io/part-of: microdemo
+        app.kubernetes.io/component: backend
     spec:
       containers:
         - name: orders

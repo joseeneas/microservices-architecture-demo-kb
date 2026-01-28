@@ -3,6 +3,12 @@ kind: Service
 metadata:
   name: users
   namespace: microdemo
+  labels:
+    app: users
+    tier: backend
+    app.kubernetes.io/name: users
+    app.kubernetes.io/part-of: microdemo
+    app.kubernetes.io/component: backend
 spec:
   ports:
     - port: 8000
@@ -16,6 +22,12 @@ kind: Deployment
 metadata:
   name: users
   namespace: microdemo
+  labels:
+    app: users
+    tier: backend
+    app.kubernetes.io/name: users
+    app.kubernetes.io/part-of: microdemo
+    app.kubernetes.io/component: backend
 spec:
   replicas: 1
   selector:
@@ -25,6 +37,10 @@ spec:
     metadata:
       labels:
         app: users
+        tier: backend
+        app.kubernetes.io/name: users
+        app.kubernetes.io/part-of: microdemo
+        app.kubernetes.io/component: backend
     spec:
       containers:
         - name: users
