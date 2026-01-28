@@ -242,7 +242,7 @@ export function OrdersPage() {
     },
     {
       key: 'total',
-      label: 'TotalX',
+      label: 'Total',
       align: 'right' as const,
       thClassName: 'w-[14%]',
       tdClassName: 'w-[14%]',

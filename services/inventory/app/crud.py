@@ -33,7 +33,7 @@ def get_inventory_item_by_sku(db: Session, sku: str) -> Optional[models.Inventor
     """
     return db.query(models.InventoryItem).filter(models.InventoryItem.sku == sku).first()
 
-def get_inventory_items(db: Session, skip: int = 0, limit: int = 100) -> List[models.InventoryItem]:
+def get_inventory_items(db: Session, skip: int = 0, limit: int = 500) -> List[models.InventoryItem]:
     """
     Retrieve a list of inventory items with pagination.
     

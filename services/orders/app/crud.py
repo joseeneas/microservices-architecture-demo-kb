@@ -27,7 +27,7 @@ def get_order(db: Session, order_id: str) -> Optional[models.Order]:
     """
     return db.query(models.Order).filter(models.Order.id == order_id).first()
 
-def get_orders(db: Session, skip: int = 0, limit: int = 100) -> List[models.Order]:
+def get_orders(db: Session, skip: int = 0, limit: int = 500) -> List[models.Order]:
     """
     Retrieve a list of orders with pagination.
     

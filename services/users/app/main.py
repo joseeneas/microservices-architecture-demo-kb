@@ -285,7 +285,7 @@ def get_timeseries(
 @app.get("/", response_model=List[schemas.User])
 def list_users(
     skip: int = 0,
-    limit: int = 100,
+    limit: int = 500,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(auth.require_admin)
 ):
@@ -294,7 +294,7 @@ def list_users(
 
     Args:
         skip: Number of records to skip (default: 0)
-        limit: Maximum number of records to return (default: 100)
+        limit: Maximum number of records to return (default: 500)
         db: Database session (injected)
         current_user: Current authenticated admin user (injected)
 

@@ -33,7 +33,7 @@ def get_user_by_email(db: Session, email: str) -> Optional[models.User]:
     """
     return db.query(models.User).filter(models.User.email == email).first()
 
-def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[models.User]:
+def get_users(db: Session, skip: int = 0, limit: int = 500) -> List[models.User]:
     """
     Retrieve a list of users with pagination.
     

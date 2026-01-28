@@ -93,7 +93,7 @@ def health():
 @app.get("/", response_model=List[schemas.Order])
 def list_orders(
     skip: int = 0,
-    limit: int = 100,
+    limit: int = 500,
     db: Session = Depends(get_db),
     current_user: auth.CurrentUser = Depends(auth.get_current_user)
 ):
@@ -102,7 +102,7 @@ def list_orders(
 
     Args:
         skip: Number of records to skip (default: 0)
-        limit: Maximum number of records to return (default: 100)
+        limit: Maximum number of records to return (default: 500)
         db: Database session (injected)
         current_user: Current authenticated user (injected)
 

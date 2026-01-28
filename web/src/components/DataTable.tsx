@@ -40,7 +40,7 @@ export function DataTable<T extends Record<string, any>>({
   searchable = true,
   searchKeys = [],
   pagination = true,
-  pageSizeOptions = [5, 10, 20, 50],
+  pageSizeOptions = [5, 10, 20, 50,100],
   defaultPageSize = 10,
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState('');
